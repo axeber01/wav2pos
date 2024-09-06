@@ -2,7 +2,7 @@
 
 ![](overview.png)
 
-This repository contains a reference implementation of wav2pos, as well as code for training the model for 3D sound source localization on simulated speech data.
+This repository contains a reference implementation of [wav2pos](https://arxiv.org/abs/2408.15771), as well as code for training the model for 3D sound source localization on simulated speech data.
 
 Tested using python 3.8 and torch 2.1.
 
@@ -26,6 +26,19 @@ python main.py --cfg=cfg --model=wav2pos --exp_name=wav2pos_anechoic --load_data
 ## wav2pos inference visualization
 
 After you have trained your model, you can try visualizing evaluations using the provided [notebook](./wav2pos_example.ipynb).
+
+## Citation
+
+If you use this code repository, please cite the following paper:
+
+```
+@article{berg2024wav2pos,
+  title={wav2pos: Sound Source Localization using Masked Autoencoders},
+  author={Berg, Axel and Gulin, Jens and O'Connor, Mark and Zhou, Chuteng and {\AA}str{\"o}m, Karl and Oskarsson, Magnus},
+  journal={arXiv preprint arXiv:2408.15771},
+  year={2024}
+}
+```
 
 ## Acknowledgements
 
