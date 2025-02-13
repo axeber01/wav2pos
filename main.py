@@ -4,12 +4,11 @@ import random
 from wav2pos import wav2pos
 import torch.optim as optim
 from data import LibriSpeechLocations, DelaySimulatorDataset, remove_silence
-import scipy
 import torch.utils.data as data_utils
 import importlib
 import argparse
 import os
-from timm.optim import optim_factory
+from timm.optim import param_groups_weight_decay
 from tqdm import tqdm
 from warmup_scheduler import GradualWarmupScheduler
 import datetime
@@ -115,6 +114,15 @@ mic6 = np.random.uniform(
 
 mic_locs = np.stack([mic1, mic2, mic3, mic4, mic5, mic6]).transpose(1, 2, 0)
 
+# # For more than 6 microphones (`num_mics` in `cfg.py`), you will need to add
+# # more microphone positions. For example, you can add:
+# mic7 = np.random.uniform(
+#     [0, 0, room_len_z/2], [room_len_x, room_len_y, room_len_z/2], coord_size)
+# mic8 = np.random.uniform(
+#     [room_len_x/2, 0, 0], [room_len_x/2, room_len_y, room_len_z], coord_size)
+
+# # And update `mic_locs`:
+# mic_locs = np.stack([mic1, mic2, mic3, mic4, mic5, mic6, mic7, mic8]).transpose(1, 2, 0)
 
 log_print("Data prep started...")
 data_set = LibriSpeechLocations(source_locs, mic_locs, split="test-clean", random_source_pos=True,
@@ -223,7 +231,7 @@ print("Ids keep = " + str(ids_keep))
 # Create optimizer
 no_weight_decay_list = {'norm', 'enc_audio_modality', 'enc_loc_modality',
                         'dec_audio_modality', 'dec_loc_modality', 'pos_embed', 'decoder_pos_embed', 'mask_token'}
-param_groups = optim_factory.param_groups_weight_decay(
+param_groups = param_groups_weight_decay(
     model, cfg.wd, no_weight_decay_list)
 optimizer = optim.AdamW(param_groups, lr=cfg.lr)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(
@@ -336,12 +344,12 @@ for e in range(cfg.epochs):
     scheduler.step()
 
     outstr = 'Train epoch, %d, audio loss, %.6f, loc loss, %.6f, tdoa loss, %.6f, loc MAE [cm], %.6f, loc acc, %.6f, lr, %.6f' % (e,
-                                                                                                       curr_loss_audio,
-                                                                                                       curr_loss_locs,
-                                                                                                       curr_loss_tdoas,
-                                                                                                       curr_mae * 100.0,
-                                                                                                       curr_acc,
-                                                                                                       optimizer.param_groups[0]['lr'])
+                                                                                                        curr_loss_audio,
+                                                                                                        curr_loss_locs,
+                                                                                                        curr_loss_tdoas,
+                                                                                                        curr_mae * 100.0,
+                                                                                                        curr_acc,
+                                                                                                        optimizer.param_groups[0]['lr'])
 
     log_string(outstr+'\n')
 
